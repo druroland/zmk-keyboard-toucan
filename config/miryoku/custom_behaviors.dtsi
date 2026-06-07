@@ -1,0 +1,40 @@
+// Copyright 2021 Manna Harbour
+// https://github.com/manna-harbour/miryoku
+//
+// Positional home-row mods (the ZMK equivalent of QMK's Chordal Hold / the
+// "opposite-hands rule"). Shared by every board that includes it after
+// miryoku.dtsi (so U_TAPPING_TERM is defined). The base-layer override in
+// custom_config.h binds the alpha mod-taps to &hml (left hand) and &hmr (right
+// hand); each only resolves as a hold when chorded with a key on the OPPOSITE
+// hand (or a thumb), via hold-trigger-key-positions.
+//
+// Trigger-position lists (U_HML_TRIGGERS / U_HMR_TRIGGERS) are defined in
+// custom_config.h. flavor/require-prior-idle/quick-tap carry the same tuning
+// that previously lived on the global u_mt override.
+
+/ {
+  behaviors {
+    hml: home_row_mod_left {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      flavor = "balanced";
+      tapping-term-ms = <U_TAPPING_TERM>;
+      quick-tap-ms = <175>;
+      require-prior-idle-ms = <150>;
+      hold-trigger-key-positions = <U_HML_TRIGGERS>;
+      hold-trigger-on-release;
+      bindings = <&kp>, <&kp>;
+    };
+    hmr: home_row_mod_right {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      flavor = "balanced";
+      tapping-term-ms = <U_TAPPING_TERM>;
+      quick-tap-ms = <175>;
+      require-prior-idle-ms = <150>;
+      hold-trigger-key-positions = <U_HMR_TRIGGERS>;
+      hold-trigger-on-release;
+      bindings = <&kp>, <&kp>;
+    };
+  };
+};

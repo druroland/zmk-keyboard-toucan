@@ -8,17 +8,18 @@
 // Customise the layout (alphas, layers, clipboard OS, kludges, etc.) in
 // config/miryoku/custom_config.h -- see the miryoku_zmk readme for options.
 
+// U_TOUCAN enables the trackpad-specific left-thumb Mouse layer override in
+// custom_config.h (the PocketCorne build omits this and gets the stock layer).
+#define U_TOUCAN
+
 #include "miryoku/custom_config.h"
 #include "miryoku/mapping/42/toucan.h"
 #include "miryoku/miryoku.dtsi"
 
-// Modern home-row mods: override Miryoku's tap-preferred defaults on the alpha
-// mod-taps (u_mt). require-prior-idle-ms stops fast-roll misfires (a mod only
-// engages after a brief pause), balanced makes mods trigger on a real chord, and
-// quick-tap-ms enables tap-then-hold auto-repeat. Thumb layer-taps (u_lt) are
-// intentionally left at Miryoku defaults so layer access stays instant.
-&u_mt {
-    flavor = "balanced";
-    require-prior-idle-ms = <150>;
-    quick-tap-ms = <175>;
-};
+// Positional home-row mods: the base layer (overridden in custom_config.h) binds
+// the alpha mod-taps to &hml/&hmr, defined here. Included after miryoku.dtsi so
+// U_TAPPING_TERM is available; the keymap forward-references the labels.
+// balanced + require-prior-idle stop fast-roll misfires, hold-trigger-key-positions
+// add the opposite-hands rule, quick-tap enables tap-then-hold auto-repeat. Thumb
+// layer-taps (u_lt) stay at Miryoku defaults so layer access stays instant.
+#include "miryoku/custom_behaviors.dtsi"
