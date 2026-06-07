@@ -2,10 +2,12 @@
 // https://github.com/manna-harbour/miryoku
 //
 // Miryoku layout for the beekeeb Toucan 36 (3x5 + 3 thumbs per hand).
-// Engine vendored from https://github.com/manna-harbour/miryoku_zmk into ../miryoku.
+// Engine vendored from https://github.com/manna-harbour/miryoku_zmk into config/miryoku.
+// It lives under config/ so the ZMK build's isolated `cp -R config/*` copy keeps the
+// engine reachable from this keymap's relative includes.
 // Customise the layout (alphas, layers, clipboard OS, kludges, etc.) in
-// ../miryoku/custom_config.h -- see the miryoku_zmk readme for options.
+// config/miryoku/custom_config.h -- see the miryoku_zmk readme for options.
 
-#include "../miryoku/custom_config.h"
-#include "../miryoku/mapping/42/toucan.h"
-#include "../miryoku/miryoku.dtsi"
+#include "miryoku/custom_config.h"
+#include "miryoku/mapping/42/toucan.h"
+#include "miryoku/miryoku.dtsi"
