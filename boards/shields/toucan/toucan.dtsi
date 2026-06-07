@@ -107,10 +107,14 @@
         compatible = "zmk,input-listener";
         status = "disabled";
         device = <&glidepoint_split>;
-        input-processors = <&zip_xy_scaler 250 100>;
+        // Touching the pad temporarily activates the Miryoku Mouse layer (5), so the
+        // right thumbs become mouse buttons (left/right/middle click) -- laptop-style.
+        input-processors = <&zip_xy_scaler 250 100 &zip_temp_layer 5 500>;
         scroller {
-            // Miryoku Nav (4) and Mouse (5) layers: hold that thumb and drag to scroll.
-            layers = <4 5>;
+            // Scroll only on Nav (4) now: Mouse (5) is auto-activated on every touch,
+            // so gating scroll on 5 would turn all cursor movement into scrolling.
+            // Hold the Nav thumb and drag to scroll.
+            layers = <4>;
             input-processors = <
                 &zip_xy_to_scroll_mapper
                 &zip_scroll_scaler 1 5
@@ -118,4 +122,15 @@
             >;
         };
     };
+};
+
+// Auto-mouse-layer tuning:
+// - require-prior-idle-ms: a stray pad brush within 150ms of a keystroke won't pop
+//   the layer (anti-palm-brush while typing).
+// - excluded-positions: the LEFT thumb cluster (36/37/38) holds the mouse buttons
+//   (see MIRYOKU_LAYER_MOUSE in custom_config.h), so pressing them to click does NOT
+//   dismiss the layer; any other key does, which instantly restores normal typing.
+&zip_temp_layer {
+    require-prior-idle-ms = <150>;
+    excluded-positions = <36 37 38>;
 };
