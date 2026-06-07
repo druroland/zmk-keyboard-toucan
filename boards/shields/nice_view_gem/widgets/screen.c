@@ -9,7 +9,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/events/split_peripheral_status_changed.h>
 #include <zmk/events/ble_active_profile_changed.h>
 #include <zmk/events/endpoint_changed.h>
-#include <zmk/events/layer_state_changed.h>
 #include <zmk/events/usb_conn_state_changed.h>
 #include <zmk/events/wpm_state_changed.h>
 #include <zmk/battery.h>
@@ -17,17 +16,19 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/display.h>
 #include <zmk/display/widgets/battery_status.h>
 #include <zmk/endpoints.h>
-#include <zmk/keymap.h>
 #include <zmk/usb.h>
 #include <zmk/split/central.h>
 
 #include "battery.h"
 #include "battery_peripheral.h"
-#include "layer.h"
 #include "output.h"
 #include "profile.h"
 #include "screen.h"
 #include "sleep.h"
+
+// Main-screen logo, generated into assets/main_logo.c. Regenerate with:
+//   python3 assets/img2lvgl.py main_logo_src.png main_logo -W 144 -H 112 > assets/main_logo.c
+LV_IMG_DECLARE(main_logo);
 
 struct connection_status_state {
     bool connected;
@@ -48,9 +49,14 @@ static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_st
         return;
     }
 
+    // Kirkland logo, centered in the band freed by removing the layer name
+    // (battery row ends at y27, output/profile start at y140).
+    lv_draw_img_dsc_t logo_dsc;
+    lv_draw_img_dsc_init(&logo_dsc);
+    lv_canvas_draw_img(canvas, (SCREEN_WIDTH - main_logo.header.w) / 2, 28, &main_logo, &logo_dsc);
+
     // Draw widgets
     draw_output_status(canvas, state);
-    draw_layer_status(canvas, state);
     draw_profile_status(canvas, state);
     draw_battery_status(canvas, state);
     draw_battery_peripheral_status(canvas, state);
@@ -130,32 +136,6 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_battery_peripheral_status, struct battery_per
                             battery_peripheral_status_update_cb, battery_peripheral_status_get_state);
 
 ZMK_SUBSCRIPTION(widget_battery_peripheral_status, zmk_peripheral_battery_state_changed);
-
-/**
- * Layer status
- **/
-
-static void set_layer_status(struct zmk_widget_screen *widget, struct layer_status_state state) {
-    widget->state.layer_index = zmk_keymap_highest_layer_active();
-    draw_top(widget->obj, widget->cbuf3, &widget->state);
-}
-
-static void layer_status_update_cb(struct layer_status_state state) {
-    struct zmk_widget_screen *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_layer_status(widget, state); }
-}
-
-static struct layer_status_state layer_status_get_state(const zmk_event_t *eh) {
-    uint8_t index = zmk_keymap_highest_layer_active();
-    return (struct layer_status_state) {
-        .index = index
-    };
-}
-
-ZMK_DISPLAY_WIDGET_LISTENER(widget_layer_status, struct layer_status_state, layer_status_update_cb,
-                            layer_status_get_state)
-
-ZMK_SUBSCRIPTION(widget_layer_status, zmk_layer_state_changed);
 
 /**
  * Output status
@@ -251,7 +231,6 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     sys_slist_append(&widgets, &widget->node);
     widget_battery_status_init();
     widget_battery_peripheral_status_init();
-    widget_layer_status_init();
     widget_output_status_init();
 
     return 0;
