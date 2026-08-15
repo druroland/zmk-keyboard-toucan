@@ -135,7 +135,11 @@
         // resolution. Tune pointer speed on the TPS43 with its `sensitivity` /
         // `x-resolution` / `y-resolution` registers (see toucan_right.overlay) and
         // leave this at 1:1, so there's one place to adjust instead of two.
-        input-processors = <&zip_xy_scaler 100 100 &zip_zoom_mapper &zip_temp_layer 5 500>;
+        // zip_scroll_scaler 1 20 divides scroll by 20. The TPS43's raw wheel
+        // deltas are far too hot to use unscaled -- one flick crosses a page.
+        // This is the value upstream toucan2 ships. Lower the divisor for faster
+        // scrolling (1 10 = 2x this), raise it for slower.
+        input-processors = <&zip_xy_scaler 100 100 &zip_scroll_scaler 1 20 &zip_zoom_mapper &zip_temp_layer 5 500>;
         // No `scroller` child here any more. On the Cirque we synthesised scroll by
         // remapping XY to scroll while the Nav layer was held, because that pad had no
         // scroll gesture. The TPS43 does two-finger scroll in hardware and reports it
