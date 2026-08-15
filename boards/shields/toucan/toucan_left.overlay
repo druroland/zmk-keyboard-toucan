@@ -43,6 +43,13 @@ nice_view_spi: &spi0 {
     ;
 };
 
-&glidepoint_listener {
+// The listener -- and therefore every input processor, since those invoke
+// behaviors -- lives on the central half. The pad itself is on the peripheral
+// and reaches us over the split link via trackpad_split.
+&trackpad_listener {
+    status = "okay";
+};
+
+&zip_zoom_mapper {
     status = "okay";
 };
